@@ -9,7 +9,6 @@ The focus is:
 - Runbooks (migration, cutover, rollback)
 - Post-migration hardening + modernization roadmap
 
-> Note: This is a lab / simulated enterprise scenario (not a real production workload).
 
 ## Architecture
 - VPC (10.0.0.0/16)
@@ -45,3 +44,11 @@ key_name      = "liftshift-key"
 admin_cidr    = "YOUR_PUBLIC_IP/32"
 aws_region    = "us-east-1"
 instance_type = "t3.micro"
+
+## Phase 2 — Operate (Observability + Runbooks)
+- CloudWatch Agent (mem/disk metrics + apache logs)
+- CloudWatch Logs groups for access/error/system logs
+- CloudWatch Alarms → SNS notifications
+- Dashboard
+- New incident runbooks mapped to alarms
+

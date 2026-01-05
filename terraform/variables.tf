@@ -43,3 +43,9 @@ variable "admin_cidr" {
   description = "Your public IP in CIDR format for SSH, e.g. 1.2.3.4/32"
   type        = string
 }
+
+variable "aws_profile" {
+  description = "AWS CLI profile name to use"
+  type        = string
+  default     = "default"
+}
