@@ -5,10 +5,10 @@ resource "aws_cloudwatch_dashboard" "liftshift" {
     widgets = [
       {
         type = "metric",
-        x = 0, y = 0, width = 12, height = 6,
+        x    = 0, y = 0, width = 12, height = 6,
         properties = {
           metrics = [
-            ["AWS/EC2","CPUUtilization","InstanceId", local.legacy_instance_id]
+            ["AWS/EC2", "CPUUtilization", "InstanceId", local.legacy_instance_id]
           ],
           period = 60,
           stat   = "Average",
@@ -17,10 +17,10 @@ resource "aws_cloudwatch_dashboard" "liftshift" {
       },
       {
         type = "metric",
-        x = 12, y = 0, width = 12, height = 6,
+        x    = 12, y = 0, width = 12, height = 6,
         properties = {
           metrics = [
-            ["CWAgent","mem_used_percent","InstanceId", local.legacy_instance_id]
+            ["CWAgent", "mem_used_percent", "InstanceId", local.legacy_instance_id]
           ],
           period = 60,
           stat   = "Average",
@@ -29,10 +29,10 @@ resource "aws_cloudwatch_dashboard" "liftshift" {
       },
       {
         type = "metric",
-        x = 0, y = 6, width = 12, height = 6,
+        x    = 0, y = 6, width = 12, height = 6,
         properties = {
           metrics = [
-            ["CWAgent","disk_used_percent","InstanceId", local.legacy_instance_id]
+            ["CWAgent", "disk_used_percent", "InstanceId", local.legacy_instance_id]
           ],
           period = 60,
           stat   = "Average",
@@ -41,10 +41,10 @@ resource "aws_cloudwatch_dashboard" "liftshift" {
       },
       {
         type = "metric",
-        x = 12, y = 6, width = 12, height = 6,
+        x    = 12, y = 6, width = 12, height = 6,
         properties = {
           metrics = [
-            ["AWS/EC2","StatusCheckFailed","InstanceId", local.legacy_instance_id]
+            ["AWS/EC2", "StatusCheckFailed", "InstanceId", local.legacy_instance_id]
           ],
           period = 60,
           stat   = "Maximum",

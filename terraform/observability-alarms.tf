@@ -3,9 +3,20 @@ variable "alert_email" {
   default = ""
 }
 
-variable "cpu_threshold"  { type = number, default = 80 }
-variable "mem_threshold"  { type = number, default = 80 }
-variable "disk_threshold" { type = number, default = 85 }
+variable "cpu_threshold" {
+  type    = number
+  default = 80
+}
+
+variable "mem_threshold" {
+  type    = number
+  default = 80
+}
+
+variable "disk_threshold" {
+  type    = number
+  default = 85
+}
 
 resource "aws_sns_topic" "liftshift_alerts" {
   name = "liftshift-alerts"
@@ -18,12 +29,11 @@ resource "aws_sns_topic_subscription" "email" {
   endpoint  = var.alert_email
 }
 
-# IMPORTANT: set this local to your EC2 resource name
-# Update aws_instance.<NAME> after you find it with grep/state
 locals {
-  legacy_instance_id = aws_instance.legacy_app.id
+  instance_id = aws_instance.legacy_app.id
 }
 
+# Alarm: Status Check Failed
 resource "aws_cloudwatch_metric_alarm" "status_check_failed" {
   alarm_name          = "liftshift-ec2-statuscheck-failed"
   comparison_operator = "GreaterThanThreshold"
@@ -33,10 +43,16 @@ resource "aws_cloudwatch_metric_alarm" "status_check_failed" {
   period              = 60
   statistic           = "Maximum"
   threshold           = 0
-  alarm_actions       = [aws_sns_topic.liftshift_alerts.arn]
-  dimensions = { InstanceId = local.legacy_instance_id }
+
+  alarm_description = "EC2 status check failed (instance/system)."
+  alarm_actions     = [aws_sns_topic.liftshift_alerts.arn]
+
+  dimensions = {
+    InstanceId = local.instance_id
+  }
 }
 
+# Alarm: High CPU
 resource "aws_cloudwatch_metric_alarm" "high_cpu" {
   alarm_name          = "liftshift-high-cpu"
   comparison_operator = "GreaterThanThreshold"
@@ -46,11 +62,16 @@ resource "aws_cloudwatch_metric_alarm" "high_cpu" {
   period              = 60
   statistic           = "Average"
   threshold           = var.cpu_threshold
-  alarm_actions       = [aws_sns_topic.liftshift_alerts.arn]
-  dimensions = { InstanceId = local.legacy_instance_id }
+
+  alarm_description = "CPU utilization above threshold."
+  alarm_actions     = [aws_sns_topic.liftshift_alerts.arn]
+
+  dimensions = {
+    InstanceId = local.instance_id
+  }
 }
 
-# CWAgent metrics (CloudWatch Agent must be running)
+# Alarm: High Memory (CWAgent)
 resource "aws_cloudwatch_metric_alarm" "high_mem" {
   alarm_name          = "liftshift-high-memory"
   comparison_operator = "GreaterThanThreshold"
@@ -60,10 +81,16 @@ resource "aws_cloudwatch_metric_alarm" "high_mem" {
   period              = 60
   statistic           = "Average"
   threshold           = var.mem_threshold
-  alarm_actions       = [aws_sns_topic.liftshift_alerts.arn]
-  dimensions = { InstanceId = local.legacy_instance_id }
+
+  alarm_description = "Memory used percent above threshold (CWAgent)."
+  alarm_actions     = [aws_sns_topic.liftshift_alerts.arn]
+
+  dimensions = {
+    InstanceId = local.instance_id
+  }
 }
 
+# Alarm: High Disk (CWAgent)
 resource "aws_cloudwatch_metric_alarm" "high_disk" {
   alarm_name          = "liftshift-high-disk"
   comparison_operator = "GreaterThanThreshold"
@@ -73,9 +100,12 @@ resource "aws_cloudwatch_metric_alarm" "high_disk" {
   period              = 60
   statistic           = "Average"
   threshold           = var.disk_threshold
-  alarm_actions       = [aws_sns_topic.liftshift_alerts.arn]
 
-  # Disk dimensions depend on how the agent reports them.
-  # Start simple with just InstanceId (works for many setups).
-  dimensions = { InstanceId = local.legacy_instance_id }
+  alarm_description = "Disk used percent above threshold (CWAgent)."
+  alarm_actions     = [aws_sns_topic.liftshift_alerts.arn]
+
+  # Keep dimensions simple so it works regardless of device naming.
+  dimensions = {
+    InstanceId = local.instance_id
+  }
 }
